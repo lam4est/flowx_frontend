@@ -60,37 +60,73 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { toast } from 'vue3-toastify'
+import axios from 'axios'
+import { useAuthStore } from '../store/auth'
 
 const isLogin = ref(true)
 const name = ref('')
 const email = ref('')
 const password = ref('')
 
-function onSubmit() {
+const authStore = useAuthStore()
+
+async function onSubmit() {
   if (isLogin.value) {
     if (!email.value || !password.value) {
-      toast.error('Vui lòng nhập đầy đủ Email và Mật khẩu!')
+      toast.error('Please enter both Email and Password!')
       return
     }
     if (!email.value.includes('@')) {
-      toast.error('Email không hợp lệ!')
+      toast.error('Invalid email!')
       return
     }
-    toast.success(`✅ Login Successful!\nEmail: ${email.value}`)
+    try {
+      const res = await axios.post('http://localhost:3000/auth/login', {
+        email: email.value,
+        password: password.value
+      })
+      // Lưu access_token vào localStorage
+      if (res.data.access_token) {
+        authStore.setToken(res.data.access_token)
+        authStore.setUser(res.data.user)
+      }
+      toast.success(`✅ Login Successful!\nEmail: ${res.data.email}`)
+      // Reset form hoặc chuyển trang
+    } catch (err: any) {
+      if (err.response && err.response.data && err.response.data.message) {
+        toast.error('Login failed: ' + err.response.data.message)
+      } else {
+        toast.error('Login failed!')
+      }
+    }
   } else {
     if (!name.value || !email.value || !password.value) {
-      toast.error('Vui lòng nhập đầy đủ Họ tên, Email và Mật khẩu!')
+      toast.error('Please enter your Name, Email, and Password!')
       return
     }
     if (!email.value.includes('@')) {
-      toast.error('Email không hợp lệ!')
+      toast.error('Invalid email!')
       return
     }
     if (password.value.length < 6) {
-      toast.error('Mật khẩu phải có ít nhất 6 ký tự!')
+      toast.error('Password must be at least 6 characters!')
       return
     }
-    toast.success(`✅ Account Created!\nFull Name: ${name.value}\nEmail: ${email.value}`)
+    try {
+      const res = await axios.post('http://localhost:3000/users', {
+        name: name.value,
+        email: email.value,
+        password: password.value
+      })
+      toast.success(res.data.message); // Hiển thị message từ backend
+      // Xử lý res.data.user nếu cần
+    } catch (err: any) {
+      if (err.response && err.response.data && err.response.data.message) {
+        toast.error(err.response.data.message);
+      } else {
+        toast.error('Registration failed!');
+      }
+    }
   }
 }
 </script>
