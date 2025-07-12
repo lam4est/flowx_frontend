@@ -1,10 +1,14 @@
 import { defineStore } from 'pinia'
+import { getStoredToken, clearStoredToken } from '../utils/auth'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null as null | { email: string, [key: string]: any },
-    token: localStorage.getItem('access_token') || null,
+    token: getStoredToken(),
   }),
+  getters: {
+    isAuthenticated: (state) => !!state.token
+  },
   actions: {
     setUser(user: any) {
       this.user = user
@@ -16,7 +20,11 @@ export const useAuthStore = defineStore('auth', {
     logout() {
       this.user = null
       this.token = null
-      localStorage.removeItem('access_token')
+      clearStoredToken()
+      // Redirect to auth page after logout
+      if (window.location.pathname !== '/auth') {
+        window.location.href = '/auth'
+      }
     }
   }
 }) 

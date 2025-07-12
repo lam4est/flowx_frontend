@@ -59,10 +59,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { toast } from 'vue3-toastify'
-import axios from 'axios'
+import { apiService } from '../services/api'
 import { useAuthStore } from '../store/auth'
 
+const router = useRouter()
 const isLogin = ref(true)
 const name = ref('')
 const email = ref('')
@@ -81,17 +83,13 @@ async function onSubmit() {
       return
     }
     try {
-      const res = await axios.post('http://localhost:3000/auth/login', {
-        email: email.value,
-        password: password.value
-      })
-      // Lưu access_token vào localStorage
+      const res = await apiService.login(email.value, password.value)
       if (res.data.access_token) {
         authStore.setToken(res.data.access_token)
         authStore.setUser(res.data.user)
+        toast.success(`✅ Login Successful!\nEmail: ${res.data.user.email}`)
+        router.push('/')
       }
-      toast.success(`✅ Login Successful!\nEmail: ${res.data.email}`)
-      // Reset form hoặc chuyển trang
     } catch (err: any) {
       if (err.response && err.response.data && err.response.data.message) {
         toast.error('Login failed: ' + err.response.data.message)
@@ -113,13 +111,13 @@ async function onSubmit() {
       return
     }
     try {
-      const res = await axios.post('http://localhost:3000/users', {
-        name: name.value,
-        email: email.value,
-        password: password.value
-      })
+      const res = await apiService.register(name.value, email.value, password.value)
       toast.success(res.data.message); // Hiển thị message từ backend
-      // Xử lý res.data.user nếu cần
+      // Switch to login mode after successful registration
+      isLogin.value = true
+      name.value = ''
+      email.value = ''
+      password.value = ''
     } catch (err: any) {
       if (err.response && err.response.data && err.response.data.message) {
         toast.error(err.response.data.message);
@@ -179,7 +177,7 @@ async function onSubmit() {
 }
 
 .auth-input {
-  width: 340px;
+  width: 100%;
   padding: 10px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
