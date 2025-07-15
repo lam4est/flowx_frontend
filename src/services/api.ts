@@ -13,12 +13,4 @@ export const apiService = {
   getUser: (id: number) => api.get(`/users/${id}`),
   updateUser: (id: number, data: any) => api.put(`/users/${id}`, data),
   deleteUser: (id: number) => api.delete(`/users/${id}`),
-
-  // Workflow endpoints
-  getWorkflows: () => api.get('/workflows'),
-  getWorkflow: (id: number) => api.get(`/workflows/${id}`),
-  createWorkflow: (data: any) => api.post('/workflows', data),
-  deleteWorkflow: (id: number) => api.delete(`/workflows/${id}`),
-  createFromTemplate: (templateName: string, data: any) => 
-    api.post(`/workflows/template/${templateName}`, data),
 } 
