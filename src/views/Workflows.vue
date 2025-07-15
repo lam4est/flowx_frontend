@@ -16,14 +16,29 @@
       </div>
     </div>
     
-    <!-- Workflow Table -->
     <WorkflowTable />
+    <ModalCreateAutomation 
+      v-if="showCreateModal" 
+      @close="showCreateModal = false"
+      @create="handleWorkflowCreated"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import WorkflowTable from '../components/WorkflowTable.vue'
+import ModalCreateAutomation from '../components/workflow/ModalCreateAutomation.vue'
 
+const router = useRouter()
 const showCreateModal = ref(false)
+
+const handleWorkflowCreated = (workflow: any) => {
+  router.push(`/workflows/${workflow.id}/edit`)
+}
+
+onMounted(() => {
+
+})
 </script> 

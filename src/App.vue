@@ -2,10 +2,12 @@
 import Layout from './components/Layout.vue'
 import { useRoute } from 'vue-router'
 import { computed } from 'vue'
+import { createWorkflowService } from './services/workflowService'
 
 const route = useRoute()
 
-// Chỉ hiển thị Layout cho các trang cần sidebar/navbar
+createWorkflowService()
+
 const showLayout = computed(() => {
   return route.path !== '/auth' && route.path !== '/'
 })

@@ -67,31 +67,18 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { apiService } from '../services/api'
-
-interface Workflow {
-  id: string
-  name: string
-  createdAt: string
-  hitCount?: number
-  active: boolean
-}
+import { useWorkflowService } from '../services/workflowService'
 
 const router = useRouter()
-const workflows = ref<Workflow[]>([])
+const { workflows, getAllWorkflows } = useWorkflowService()
 
 onMounted(async () => {
-  try {
-    const response = await apiService.getWorkflows()
-    workflows.value = response.data.workflows || []
-  } catch (error) {
-    console.error('Error fetching workflows:', error)
-  }
+  await getAllWorkflows()
 })
 
 const goToWorkflow = (workflowId: string) => {
   if (workflowId) {
-    router.push(`/workflows/${workflowId}`)
+    router.push(`/workflows/${workflowId}/edit`)
   } else {
     console.warn('Không tìm thấy workflow ID')
   }
